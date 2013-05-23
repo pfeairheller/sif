@@ -14,3 +14,15 @@ type Spout interface {
 type Grouping interface {
 	Run()
 }
+
+type Topology struct {
+	Bolts [] Bolt
+	Spouts [] Spout
+}
+
+func NewTopology() (*Topology) {
+	topology := new(Topology)
+
+	return topology
+}
+
