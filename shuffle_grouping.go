@@ -20,6 +20,14 @@ func NewShuffleGrouping(dest [] chan Values) *ShuffleGrouping {
 	return out
 }
 
+func(g*ShuffleGrouping) Launch() {
+	go g.Run()
+}
+
+func (g *ShuffleGrouping) Tuple(tuple Values) {
+	g.Src <- tuple
+}
+
 func (g *ShuffleGrouping) Run() {
 	for {
 		tuple := <- g.Src
