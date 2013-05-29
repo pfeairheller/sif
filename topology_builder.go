@@ -4,7 +4,7 @@ type BoltDeclarer struct {
 	id string
 	bolt Bolt
 	parallelism int
-	groupings map[string]string
+	groupings map[string]Grouping
 }
 
 func NewBoltDeclarer(id string, bolt Bolt, parallelism int) (*BoltDeclarer) {
@@ -12,13 +12,18 @@ func NewBoltDeclarer(id string, bolt Bolt, parallelism int) (*BoltDeclarer) {
 	out.id = id
 	out.bolt = bolt
 	out.parallelism = parallelism
-	out.groupings = make(map[string]string)
+	out.groupings = make(map[string]Grouping)
 
 	return out
 }
 
 func (bd *BoltDeclarer) ShuffleGrouping(sourceId string) (*BoltDeclarer) {
-	bd.groupings[sourceId] = "shuffle"
+	bd.groupings[sourceId] = NewShuffleGrouping()
+	return bd
+}
+
+func (bd *BoltDeclarer) FieldGrouping(sourceId string, fields *Fields) (*BoltDeclarer) {
+	bd.groupings[sourceId] = NewFieldGrouping(fields)
 	return bd
 }
 
@@ -74,17 +79,11 @@ func (tb *TopologyBuilder) CreateTopology() (*Topology) {
 			topology.Bolts[boltId] = append(topology.Bolts[boltId], bb)
 		}
 
-		for sourceId,groupingType := range bd.groupings {
-			switch groupingType {
-			case "shuffle":
-				grouping := NewShuffleGrouping(dests)
+		for sourceId,grouping := range bd.groupings {
+				grouping.Prepare(conf, dests)
 				topology.Groupings[sourceId] = append(topology.Groupings[sourceId], grouping)
-			case "field":
-			case "all":
-			case "none":
-			}
 		}
-
+		
 	}
 
 	for spoutId, sd := range tb.spouts {

@@ -13,12 +13,16 @@ type ShuffleGrouping struct {
 }
 
 
-func NewShuffleGrouping(dest [] chan Values) *ShuffleGrouping {
+func NewShuffleGrouping() *ShuffleGrouping {
 	out := new(ShuffleGrouping)
 	out.Src = make(chan Values, 10)
-	out.Dests = dest
 	return out
 }
+
+func(g *ShuffleGrouping) Prepare(conf map[string]string, dests []chan Values) {
+	g.Dests = dests
+}
+
 
 func(g*ShuffleGrouping) Launch() {
 	go g.Run()

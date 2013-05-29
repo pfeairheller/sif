@@ -4,16 +4,17 @@ package gomethius
 type Bolt interface {
 	Prepare(conf map[string]string, emitter chan Values)
 	Execute(tuple Values)
-	DeclareOutputFields() [] string
+	DeclareOutputFields() *Fields
 }
 
 type Spout interface {
 	Open(conf map[string]string, emitter chan Values)
 	NextTuple()
-	DeclareOutputFields() [] string
+	DeclareOutputFields() *Fields
 }
 
 type Grouping interface {
+	Prepare(conf map[string]string, dest []chan Values)
 	Run()
 	Launch()
 	Tuple(tuple Values)
