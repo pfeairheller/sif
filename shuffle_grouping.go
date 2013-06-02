@@ -19,7 +19,7 @@ func NewShuffleGrouping() *ShuffleGrouping {
 	return out
 }
 
-func(g *ShuffleGrouping) Prepare(conf map[string]string, dests []chan Values) {
+func(g *ShuffleGrouping) Prepare(conf map[string]string, context *TopologyContext, dests []chan Values) {
 	g.Dests = dests
 }
 

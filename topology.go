@@ -2,19 +2,19 @@ package gomethius
 
 
 type Bolt interface {
-	Prepare(conf map[string]string, emitter chan Values)
+	Prepare(conf map[string]string, context *TopologyContext, emitter chan Values)
 	Execute(tuple Values)
 	DeclareOutputFields() *Fields
 }
 
 type Spout interface {
-	Open(conf map[string]string, emitter chan Values)
+	Open(conf map[string]string, context *TopologyContext, emitter chan Values)
 	NextTuple()
 	DeclareOutputFields() *Fields
 }
 
 type Grouping interface {
-	Prepare(conf map[string]string, dest []chan Values)
+	Prepare(conf map[string]string, context *TopologyContext, dest []chan Values)
 	Run()
 	Launch()
 	Tuple(tuple Values)

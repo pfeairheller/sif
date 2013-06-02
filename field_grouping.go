@@ -8,19 +8,25 @@ import (
 type FieldGrouping struct {
 	Src      chan Values
 	Dests    []chan Values
+	SourceId string
 	SourceFields *Fields
 	Selector *Fields
 }
 
-func NewFieldGrouping(selector *Fields) *FieldGrouping {
+func NewFieldGrouping(sourceId string, selector *Fields) *FieldGrouping {
 	out := new(FieldGrouping)
 	out.Src = make(chan Values, 10)
+	out.SourceId = sourceId
 	out.Selector = selector
 	return out
 }
 
-func (g *FieldGrouping) Prepare(conf map[string]string, dests []chan Values) {
+func (g *FieldGrouping) Prepare(conf map[string]string, context *TopologyContext,  dests []chan Values) {
 	g.Dests = dests
+	sourceFields, exists := context.getOutputFields(g.SourceId)
+	if exists {
+		g.SourceFields = sourceFields
+	}
 }
 
 func (g *FieldGrouping) Launch() {

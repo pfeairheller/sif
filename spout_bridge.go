@@ -15,8 +15,8 @@ func NewSpoutBridge(s Spout, groupings []Grouping) *SpoutBridge {
 	return out
 }
 
-func (sb *SpoutBridge) Open(conf map[string]string) {
-	sb.Spout.Open(conf, sb.Src)
+func (sb *SpoutBridge) Open(conf map[string]string, context *TopologyContext) {
+	sb.Spout.Open(conf, context, sb.Src)
 }
 
 func (sb *SpoutBridge) Launch() {

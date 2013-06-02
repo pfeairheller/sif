@@ -1,68 +1,25 @@
 package gomethius
 
-type BoltDeclarer struct {
-	id string
-	bolt Bolt
-	parallelism int
-	groupings map[string]Grouping
-}
-
-func NewBoltDeclarer(id string, bolt Bolt, parallelism int) (*BoltDeclarer) {
-	out := new(BoltDeclarer)
-	out.id = id
-	out.bolt = bolt
-	out.parallelism = parallelism
-	out.groupings = make(map[string]Grouping)
-
-	return out
-}
-
-func (bd *BoltDeclarer) ShuffleGrouping(sourceId string) (*BoltDeclarer) {
-	bd.groupings[sourceId] = NewShuffleGrouping()
-	return bd
-}
-
-func (bd *BoltDeclarer) FieldGrouping(sourceId string, fields *Fields) (*BoltDeclarer) {
-	bd.groupings[sourceId] = NewFieldGrouping(fields)
-	return bd
-}
-
-type SpoutDeclarer struct {
-	id string
-	spout Spout
-	parallelism int
-}
-
-func NewSpoutDeclarer(id string, spout Spout, parallelism int) (*SpoutDeclarer) {
-	out := new(SpoutDeclarer)
-	out.id = id
-	out.spout = spout
-	out.parallelism = parallelism
-
-	return out
-}
 type TopologyBuilder struct {
-	spouts map[string]*SpoutDeclarer
-	bolts map[string]*BoltDeclarer
+	Context *TopologyContext
 }
 
 
 func NewTopologyBuilder() *TopologyBuilder {
 	out := new(TopologyBuilder)
-	out.spouts = make(map[string]*SpoutDeclarer)
-	out.bolts = make(map[string]*BoltDeclarer)
+	out.Context = NewTopologyContext();
 	return out
 }
 
 func (tb *TopologyBuilder) SetSpout(id string, spout Spout, parallelism int)  (*SpoutDeclarer) {
 	sp := NewSpoutDeclarer(id, spout, parallelism)
-	tb.spouts[id] = sp
+	tb.Context.Spouts[id] = sp
 	return sp
 }
 
 func (tb *TopologyBuilder) SetBolt(id string, bolt Bolt, parallelism int)  (*BoltDeclarer) {
 	bd := NewBoltDeclarer(id, bolt, parallelism)
-	tb.bolts[id] = bd
+	tb.Context.Bolts[id] = bd
 	return bd
 }
 
@@ -70,27 +27,27 @@ func (tb *TopologyBuilder) CreateTopology() (*Topology) {
 	topology := NewTopology()
 	conf := make(map[string]string)
 
-	for boltId, bd := range tb.bolts {
+	for boltId, bd := range tb.Context.Bolts {
 		var dests [] chan Values
 
 		for i := 0; i < bd.parallelism; i++ {
-			bb := NewBoltBridge(bd.bolt)
+			bb := NewBoltBridge(bd.Bolt)
 			dests = append(dests, bb.Src)
 			topology.Bolts[boltId] = append(topology.Bolts[boltId], bb)
 		}
 
 		for sourceId,grouping := range bd.groupings {
-				grouping.Prepare(conf, dests)
-				topology.Groupings[sourceId] = append(topology.Groupings[sourceId], grouping)
+			grouping.Prepare(conf, tb.Context, dests)
+			topology.Groupings[sourceId] = append(topology.Groupings[sourceId], grouping)
 		}
 		
 	}
 
-	for spoutId, sd := range tb.spouts {
+	for spoutId, sd := range tb.Context.Spouts {
 		for i := 0 ; i < sd.parallelism; i++ {
 			groupings := topology.Groupings[spoutId]
-			spoutBridge := NewSpoutBridge(sd.spout, groupings)
-			spoutBridge.Open(conf)
+			spoutBridge := NewSpoutBridge(sd.Spout, groupings)
+			spoutBridge.Open(conf, tb.Context)
 			topology.Spouts[spoutId] = append(topology.Spouts[spoutId], spoutBridge)
 		}
 	}
@@ -98,7 +55,7 @@ func (tb *TopologyBuilder) CreateTopology() (*Topology) {
 	for boltId, bridges := range topology.Bolts {
 		for _, bb := range bridges {
 			bb.Groupings = topology.Groupings[boltId]
-			bb.Prepare(conf)
+			bb.Prepare(conf, tb.Context)
 		}
 	}
 

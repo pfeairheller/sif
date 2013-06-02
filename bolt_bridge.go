@@ -16,8 +16,8 @@ func NewBoltBridge(b Bolt) *BoltBridge {
 	return out
 }
 
-func (bb *BoltBridge) Prepare(conf map[string]string) {
-	bb.bolt.Prepare(conf, bb.Dest)
+func (bb *BoltBridge) Prepare(conf map[string]string, context *TopologyContext) {
+	bb.bolt.Prepare(conf, context, bb.Dest)
 }
 
 
