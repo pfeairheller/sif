@@ -3,6 +3,7 @@ package gomethius
 import (
 	"bytes"
 	"encoding/binary"
+	"time"
 )
 
 type Value interface {
@@ -86,6 +87,30 @@ func (v *Float64Value) Encode() []byte {
 }
 
 func (v *Float64Value) Data() interface{} {
+	return v.data
+}
+
+type  TimeValue struct {
+	data time.Time
+}
+
+func NewTimeValue(d time.Time) *TimeValue {
+	out := new(TimeValue)
+	out.data = d
+	return out;
+}
+
+
+func (v *TimeValue) Encode() []byte {
+	buf := new(bytes.Buffer)
+	err := binary.Write(buf, binary.LittleEndian, v.data)
+	if err != nil {
+		return nil
+	}
+	return buf.Bytes()
+}
+
+func (v *TimeValue) Data() interface{} {
 	return v.data
 }
 
