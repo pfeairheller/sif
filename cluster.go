@@ -13,7 +13,7 @@ func NewLocalCluster() (*LocalCluster) {
 	return out
 }
 
-func (lc *LocalCluster)SubmitTopology(topologyId string, conf map[string]string, topology *Topology) {
+func (lc *LocalCluster)SubmitTopology(topologyId string, conf *Configuration, topology *Topology) {
 	for _, bridges := range topology.Bolts {
 		for _, boltBridge := range bridges {
 			boltBridge.Launch()
@@ -45,6 +45,6 @@ func (lc *LocalCluster) monitor() {
 
 type Cluster interface {
 
-	SubmitTopology(topologyId string, conf map[string]string, topology Topology)
+	SubmitTopology(topologyId string, conf *Configuration, topology Topology)
 
 }
