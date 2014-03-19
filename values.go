@@ -25,6 +25,10 @@ func (v *Values) Get(idx int) Value {
 	return v.values[idx]
 }
 
+func (v *Values) Len() int {
+	return len(v.values)
+}
+
 
 type StringValue struct {
 	data string
