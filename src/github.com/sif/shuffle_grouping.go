@@ -1,6 +1,6 @@
 
 
-package gomethius
+package sif
 
 import (
 	"math/rand"

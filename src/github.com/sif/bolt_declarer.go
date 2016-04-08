@@ -1,4 +1,4 @@
-package gomethius
+package sif
 
 type BoltDeclarer struct {
 	id string

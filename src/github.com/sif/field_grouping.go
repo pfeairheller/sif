@@ -1,4 +1,4 @@
-package gomethius
+package sif
 
 import (
 	"hash/fnv"
