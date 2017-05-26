@@ -3,7 +3,7 @@ package sif
 type BoltDeclarer struct {
 	id string
 	Bolt Bolt
-	parallelism int
+	parallelism, numTasks int
 	groupings map[string]Grouping
 }
 
@@ -24,6 +24,11 @@ func (bd *BoltDeclarer) ShuffleGrouping(sourceId string) (*BoltDeclarer) {
 
 func (bd *BoltDeclarer) FieldGrouping(sourceId string, fields *Fields) (*BoltDeclarer) {
 	bd.groupings[sourceId] = NewFieldGrouping(sourceId, fields)
+	return bd
+}
+
+func (bd *BoltDeclarer) SetNumTasks(num int) (*BoltDeclarer) {
+	bd.numTasks = num
 	return bd
 }
 

@@ -3,7 +3,7 @@ package sif
 type SpoutDeclarer struct {
 	id string
 	Spout Spout
-	parallelism int
+	parallelism, numTasks int
 }
 
 func NewSpoutDeclarer(id string, spout Spout, parallelism int) (*SpoutDeclarer) {
@@ -15,4 +15,8 @@ func NewSpoutDeclarer(id string, spout Spout, parallelism int) (*SpoutDeclarer) 
 	return out
 }
 
+func (sd *SpoutDeclarer) SetNumTasks(num int) (*SpoutDeclarer) {
+	sd.numTasks = num
+	return sd
+}
 
